@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulado 01 – Técnico Legislativo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+  .container { max-width: 780px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+  /* Header */
+  .header { background: #fff; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; border: 1px solid #e8e8e4; }
+  .header h1 { font-size: 20px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+  .header p { font-size: 14px; color: #666; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .stat { background: #fff; border-radius: 10px; padding: 12px 14px; text-align: center; border: 1px solid #e8e8e4; }
+  .stat-val { font-size: 26px; font-weight: 600; color: #1a1a1a; line-height: 1; }
+  .stat-val.green { color: #1a7a4a; }
+  .stat-val.red { color: #b03030; }
+  .stat-lbl { font-size: 11px; color: #888; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  /* Progress */
+  .progress-wrap { margin-bottom: 1.5rem; }
+  .progress-bar { height: 6px; background: #e8e8e4; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #3a7bd5; border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+  .progress-label { font-size: 12px; color: #888; margin-top: 6px; text-align: right; }
+
+  /* Tabs */
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+  .tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #d8d8d4; background: #fff; color: #555; transition: all 0.15s; font-family: inherit; }
+  .tab:hover { background: #f0f0ec; }
+  .tab.active { background: #3a7bd5; color: #fff; border-color: #3a7bd5; font-weight: 500; }
+
+  /* Questão */
+  .questao { background: #fff; border: 1px solid #e8e8e4; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 12px; }
+  .questao-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .questao-num { font-size: 12px; font-weight: 600; color: #3a7bd5; background: #eef3fc; padding: 3px 10px; border-radius: 20px; }
+  .questao-secao { font-size: 11px; color: #888; }
+  .questao-enunciado { font-size: 14px; color: #1a1a1a; line-height: 1.6; margin-bottom: 14px; font-weight: 500; }
+  .opcoes { display: flex; flex-direction: column; gap: 7px; }
+  .opcao { display: flex; align-items: flex-start; gap: 10px; padding: 9px 13px; border-radius: 8px; border: 1px solid #e0e0dc; cursor: pointer; font-size: 13px; color: #1a1a1a; background: #fff; text-align: left; transition: all 0.15s; font-family: inherit; width: 100%; }
+  .opcao:hover:not(:disabled) { background: #f5f5f0; border-color: #bbb; }
+  .opcao:disabled { cursor: default; }
+  .opcao .letra { font-weight: 700; min-width: 20px; color: #666; font-size: 13px; }
+  .opcao.correta { background: #eaf6ef; border-color: #4caf82; }
+  .opcao.correta .letra { color: #1a7a4a; }
+  .opcao.errada { background: #fdf0f0; border-color: #e07070; }
+  .opcao.errada .letra { color: #b03030; }
+  .opcao.gabarito { background: #eaf6ef; border-color: #4caf82; }
+  .opcao.gabarito .letra { color: #1a7a4a; }
+  .feedback { font-size: 12px; margin-top: 10px; padding: 7px 12px; border-radius: 8px; font-weight: 500; }
+  .feedback.ok { background: #eaf6ef; color: #1a7a4a; }
+  .feedback.nok { background: #fdf0f0; color: #b03030; }
+
+  /* Botões */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2rem; }
+  .btn { padding: 10px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; border: 1px solid #d0d0cc; background: #fff; color: #1a1a1a; font-family: inherit; font-weight: 500; transition: all 0.15s; }
+  .btn:hover { background: #f0f0ec; }
+  .btn.primary { background: #3a7bd5; color: #fff; border-color: #3a7bd5; }
+  .btn.primary:hover { background: #2e6bc0; }
+
+  /* Resultado final */
+  .resultado { background: #fff; border-radius: 12px; padding: 1.5rem 2rem; border: 1px solid #e8e8e4; margin-bottom: 1.5rem; display: none; text-align: center; }
+  .resultado.show { display: block; }
+  .resultado h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .resultado p { color: #555; font-size: 14px; }
+  .resultado .nota { font-size: 48px; font-weight: 700; margin: 12px 0 4px; }
+  .nota.aprovado { color: #1a7a4a; }
+  .nota.reprovado { color: #b03030; }
+  .meta { font-size: 13px; color: #888; }
+
+  @media (max-width: 500px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .header { padding: 1rem 1.25rem; }
+    .questao { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Simulado 01 – Técnico Legislativo</h1>
+    <p>Câmara Municipal de Palhoça &nbsp;·&nbsp; 50 questões &nbsp;·&nbsp; Meta: 40 acertos (80%)</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="s-resp">0</div><div class="stat-lbl">Respondidas</div></div>
+    <div class="stat"><div class="stat-val green" id="s-cert">0</div><div class="stat-lbl">Certas</div></div>
+    <div class="stat"><div class="stat-val red" id="s-err">0</div><div class="stat-lbl">Erradas</div></div>
+    <div class="stat"><div class="stat-val" id="s-pct">—</div><div class="stat-lbl">Aproveitamento</div></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="progress-label" id="prog-label">0 de 50 respondidas</div>
+  </div>
+
+  <div id="resultado" class="resultado">
+    <p>Resultado final</p>
+    <div class="nota" id="res-nota"></div>
+    <h2 id="res-titulo"></h2>
+    <p id="res-desc"></p>
+    <p class="meta" style="margin-top:8px;">Meta: 40/50 (80%) para aprovação confortável</p>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="questoes"></div>
+
+  <div class="btn-row">
+    <button class="btn primary" onclick="reiniciar()">↺ Reiniciar simulado</button>
+    <button class="btn" onclick="revelarGabarito()">Ver gabarito completo</button>
+  </div>
+
+</div>
+
+<script>
+const secoes = [
+  { nome: "Língua Portuguesa", cor: "#3a7bd5" },
+  { nome: "Legislação", cor: "#7b5ea7" },
+  { nome: "Conhecimentos Gerais", cor: "#2a9d6f" },
+  { nome: "Informática", cor: "#d4700a" },
+  { nome: "Conhecimentos Específicos", cor: "#c0394b" }
+];
+
+const questoes = [
+  { n:1,  s:0, e:"Assinale a alternativa em que todas as palavras estão grafadas corretamente:", o:["Exceção – privilégio – análise","Excessão – privilégio – análise","Exceção – previlégio – análise","Exceção – privilégio – análize"] },
+  { n:2,  s:0, e:"A concordância verbal está correta em:", o:["Fazem dois anos que não o vejo.","Houveram muitos candidatos.","Existem vagas disponíveis.","Deve haverem problemas."] },
+  { n:3,  s:0, e:"Assinale a frase com uso correto da crase:", o:["Vou à Câmara Municipal.","Vou à Palhoça.","Entreguei à ele o documento.","Refiro-me à pessoas experientes."] },
+  { n:4,  s:0, e:'Em "Os vereadores aprovaram o projeto", o sujeito é:', o:["Projeto","Aprovaram","Vereadores","Os vereadores"] },
+  { n:5,  s:0, e:'O plural de "cidadão" é:', o:["Cidadões","Cidadãos","Cidadoes","Cidadães"] },
+  { n:6,  s:0, e:"Assinale a alternativa com linguagem formal:", o:["A gente vai resolver isso.","Nós vamos resolver isso.","Vamos resolver isso aí.","A galera resolverá isso."] },
+  { n:7,  s:0, e:'O antônimo de "eficiente" é:', o:["Capaz","Competente","Ineficiente","Produtivo"] },
+  { n:8,  s:0, e:'Em "Embora estivesse cansado, continuou trabalhando", a oração expressa:', o:["Causa","Consequência","Concessão","Finalidade"] },
+  { n:9,  s:0, e:'A palavra "legislativo" é classificada como:', o:["Verbo","Adjetivo","Advérbio","Pronome"] },
+  { n:10, s:0, e:"Assinale a frase pontuada corretamente:", o:["Os servidores, compareceram cedo.","Os servidores compareceram, cedo.","Os servidores compareceram cedo.","Os, servidores compareceram cedo."] },
+  { n:11, s:1, e:"O princípio da legalidade determina que:", o:["O agente público pode fazer tudo o que a lei não proíbe.","O agente público só pode agir conforme a lei.","A lei não se aplica à administração.","O gestor decide livremente."] },
+  { n:12, s:1, e:"São princípios da Administração Pública:", o:["Legalidade, impessoalidade, moralidade.","Legalidade, amizade, publicidade.","Moralidade, favoritismo, eficiência.","Publicidade, privilégio, eficiência."] },
+  { n:13, s:1, e:"O Poder Legislativo municipal é exercido:", o:["Pelo Prefeito.","Pela Câmara Municipal.","Pelo Tribunal de Justiça.","Pelo Ministério Público."] },
+  { n:14, s:1, e:"O vereador exerce função:", o:["Jurisdicional.","Executiva.","Legislativa e fiscalizadora.","Militar."] },
+  { n:15, s:1, e:"O orçamento municipal é aprovado:", o:["Pela Câmara Municipal.","Pelo Governador.","Pelo Tribunal de Contas.","Pelo Ministério Público."] },
+  { n:16, s:1, e:"A Constituição Federal foi promulgada em:", o:["1985","1986","1988","1990"] },
+  { n:17, s:1, e:"O concurso público atende ao princípio da:", o:["Impessoalidade.","Amizade.","Subjetividade.","Discricionariedade."] },
+  { n:18, s:1, e:"O servidor público deve agir com:", o:["Favorecimento.","Moralidade.","Parcialidade.","Interesse próprio."] },
+  { n:19, s:1, e:"A publicidade dos atos administrativos busca:", o:["Sigilo.","Transparência.","Benefício pessoal.","Restrição de acesso."] },
+  { n:20, s:1, e:"A Câmara Municipal pertence ao Poder:", o:["Executivo.","Judiciário.","Legislativo.","Moderador."] },
+  { n:21, s:2, e:"Qual é a capital de Santa Catarina?", o:["Joinville","Blumenau","Florianópolis","Criciúma"] },
+  { n:22, s:2, e:"O Brasil está localizado no continente:", o:["Europeu","Asiático","Sul-Americano","Africano"] },
+  { n:23, s:2, e:"A moeda oficial do Brasil é:", o:["Peso","Real","Dólar","Euro"] },
+  { n:24, s:2, e:"A ONU significa:", o:["Organização Nacional Unificada","Organização das Nações Unidas","Organização Nova Universal","Ordem Nacional Unificada"] },
+  { n:25, s:2, e:"O município de Palhoça pertence à região:", o:["Oeste Catarinense","Grande Florianópolis","Serra Catarinense","Vale do Itajaí"] },
+  { n:26, s:3, e:"O Microsoft Word é um:", o:["Navegador","Sistema Operacional","Editor de Texto","Banco de Dados"] },
+  { n:27, s:3, e:"O atalho CTRL+C serve para:", o:["Colar","Copiar","Recortar","Salvar"] },
+  { n:28, s:3, e:"O Excel é utilizado principalmente para:", o:["Planilhas eletrônicas","Navegação na internet","Edição de vídeos","Programação"] },
+  { n:29, s:3, e:"Um antivírus tem a função de:", o:["Aumentar a internet","Criar planilhas","Proteger contra malwares","Compactar arquivos"] },
+  { n:30, s:3, e:"O e-mail é utilizado para:", o:["Telefonar","Enviar mensagens eletrônicas","Editar imagens","Criar bancos de dados"] },
+  { n:31, s:4, e:"O protocolo administrativo tem como finalidade:", o:["Controlar e registrar documentos.","Julgar processos.","Elaborar leis.","Executar obras."] },
+  { n:32, s:4, e:"Documento recebido por órgão público deve:", o:["Ser descartado.","Ser protocolado.","Ser destruído.","Ser arquivado sem registro."] },
+  { n:33, s:4, e:"Arquivo permanente contém documentos:", o:["Sem valor.","De guarda temporária.","De valor histórico e administrativo.","Duplicados."] },
+  { n:34, s:4, e:"Atendimento ao público exige:", o:["Descaso.","Cordialidade.","Favoritismo.","Parcialidade."] },
+  { n:35, s:4, e:"Redação oficial deve prezar por:", o:["Clareza.","Gírias.","Ambiguidade.","Informalidade."] },
+  { n:36, s:4, e:"O memorando é utilizado para:", o:["Comunicação interna.","Comunicação internacional.","Sentença judicial.","Decreto."] },
+  { n:37, s:4, e:"O ofício é:", o:["Comunicação oficial.","Documento contábil.","Processo judicial.","Contrato."] },
+  { n:38, s:4, e:"O arquivamento correto facilita:", o:["A perda de documentos.","O acesso às informações.","O descarte indevido.","A duplicação de arquivos."] },
+  { n:39, s:4, e:"A ética no serviço público envolve:", o:["Honestidade.","Favorecimento.","Nepotismo.","Vantagem pessoal."] },
+  { n:40, s:4, e:"A Lei de Acesso à Informação visa:", o:["Sigilo absoluto.","Transparência.","Restrição documental.","Controle privado."] },
+  { n:41, s:4, e:"A gestão documental busca:", o:["Organizar informações.","Destruir arquivos.","Ocultar dados.","Reduzir transparência."] },
+  { n:42, s:4, e:"Processo administrativo é:", o:["Conjunto de atos para decisão administrativa.","Lei municipal.","Contrato.","Licitação."] },
+  { n:43, s:4, e:"A comunicação oficial deve ser:", o:["Clara e objetiva.","Complexa e rebuscada.","Ambígua.","Informal."] },
+  { n:44, s:4, e:"O servidor deve tratar o cidadão com:", o:["Respeito.","Desprezo.","Superioridade.","Hostilidade."] },
+  { n:45, s:4, e:"A digitalização de documentos tem por objetivo:", o:["Facilitar armazenamento e consulta.","Eliminar todos os originais.","Impedir acesso.","Ocultar informações."] },
+  { n:46, s:4, e:"O controle de documentos permite:", o:["Rastreabilidade.","Desorganização.","Extravio.","Duplicidade."] },
+  { n:47, s:4, e:"O patrimônio público pertence:", o:["Aos servidores.","Ao prefeito.","À coletividade.","Aos vereadores."] },
+  { n:48, s:4, e:"O sigilo documental somente pode ocorrer:", o:["Quando previsto em lei.","Sempre.","Nunca.","Por vontade do servidor."] },
+  { n:49, s:4, e:"Transparência pública fortalece:", o:["Controle social.","Corrupção.","Sigilo.","Favorecimento."] },
+  { n:50, s:4, e:"O objetivo do serviço público é:", o:["Interesse particular.","Interesse coletivo.","Lucro.","Benefício político."] }
+];
+
+// Gabarito: índice 0=A, 1=B, 2=C, 3=D
+// 1A 2C 3A 4D 5B 6B 7C 8C 9B 10C
+// 11B 12A 13B 14C 15A 16C 17A 18B 19B 20C
+// 21C 22C 23B 24B 25B
+// 26C 27B 28A 29C 30B
+// 31A 32B 33C 34B 35A 36A 37A 38B 39A 40B
+// 41A 42A 43A 44A 45A 46A 47C 48A 49A 50B
+const gabarito = [
+  0,2,0,3,1,1,2,2,1,2,  // 1-10
+  1,0,1,2,0,2,0,1,1,2,  // 11-20
+  2,2,1,1,1,             // 21-25
+  2,1,0,2,1,             // 26-30
+  0,1,2,1,0,0,0,1,0,1,  // 31-40
+  0,0,0,0,0,0,2,0,0,1   // 41-50
+];
+
+let respostas = new Array(50).fill(null);
+let secaoAtiva = -1;
+
+function calcStats() {
+  const resp = respostas.filter(r => r !== null).length;
+  const cert = respostas.filter((r, i) => r !== null && r === gabarito[i]).length;
+  return { resp, cert, err: resp - cert };
+}
+
+function atualizarStats() {
+  const { resp, cert, err } = calcStats();
+  document.getElementById('s-resp').textContent = resp;
+  document.getElementById('s-cert').textContent = cert;
+  document.getElementById('s-err').textContent = err;
+  document.getElementById('s-pct').textContent = resp > 0 ? Math.round(cert / resp * 100) + '%' : '—';
+  document.getElementById('prog-fill').style.width = Math.round(resp / 50 * 100) + '%';
+  document.getElementById('prog-label').textContent = resp + ' de 50 respondidas';
+
+  if (resp === 50) mostrarResultado(cert);
+}
+
+function mostrarResultado(cert) {
+  const el = document.getElementById('resultado');
+  el.classList.add('show');
+  const nota = document.getElementById('res-nota');
+  nota.textContent = cert + '/50';
+  const pct = Math.round(cert / 50 * 100);
+  if (cert >= 40) {
+    nota.className = 'nota aprovado';
+    document.getElementById('res-titulo').textContent = 'Parabéns! Meta atingida ✓';
+    document.getElementById('res-desc').textContent = pct + '% de aproveitamento – acima da meta de 80%.';
+  } else {
+    nota.className = 'nota reprovado';
+    document.getElementById('res-titulo').textContent = 'Continue praticando!';
+    document.getElementById('res-desc').textContent = pct + '% de aproveitamento – abaixo da meta de 80%. Faltaram ' + (40 - cert) + ' acertos.';
+  }
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  let h = `<button class="tab ${secaoAtiva === -1 ? 'active' : ''}" onclick="filtrar(-1)">Todas (50)</button>`;
+  secoes.forEach((s, i) => {
+    const total = questoes.filter(q => q.s === i).length;
+    h += `<button class="tab ${secaoAtiva === i ? 'active' : ''}" onclick="filtrar(${i})">${s.nome} (${total})</button>`;
+  });
+  el.innerHTML = h;
+}
+
+function filtrar(idx) {
+  secaoAtiva = idx;
+  renderTabs();
+  renderQuestoes();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestoes() {
+  const letras = ['A', 'B', 'C', 'D'];
+  let html = '';
+  questoes.forEach((q, qi) => {
+    if (secaoAtiva !== -1 && q.s !== secaoAtiva) return;
+    const resp = respostas[qi];
+    const respondida = resp !== null;
+    const correta = resp === gabarito[qi];
+    const s = secoes[q.s];
+
+    html += `<div class="questao" id="q${qi}">`;
+    html += `<div class="questao-header">`;
+    html += `<span class="questao-num">Questão ${q.n}</span>`;
+    html += `<span class="questao-secao" style="color:${s.cor}">${s.nome}</span>`;
+    html += `</div>`;
+    html += `<div class="questao-enunciado">${q.e}</div>`;
+    html += `<div class="opcoes">`;
+
+    q.o.forEach((txt, oi) => {
+      let cls = 'opcao';
+      let disabled = '';
+      if (respondida) {
+        disabled = 'disabled';
+        if (oi === gabarito[qi]) cls += ' gabarito';
+        if (oi === resp && !correta) cls += ' errada';
+        if (oi === resp && correta) cls += ' correta';
+      }
+      html += `<button class="${cls}" ${disabled} onclick="responder(${qi},${oi})">`;
+      html += `<span class="letra">${letras[oi]})</span>${txt}`;
+      html += `</button>`;
+    });
+
+    html += `</div>`;
+
+    if (respondida) {
+      if (correta) {
+        html += `<div class="feedback ok">✓ Correto!</div>`;
+      } else {
+        html += `<div class="feedback nok">✗ Incorreto. Resposta correta: ${letras[gabarito[qi]]}) ${q.o[gabarito[qi]]}</div>`;
+      }
+    }
+
+    html += `</div>`;
+  });
+
+  document.getElementById('questoes').innerHTML = html;
+}
+
+function responder(qi, oi) {
+  if (respostas[qi] !== null) return;
+  respostas[qi] = oi;
+  atualizarStats();
+  renderQuestoes();
+  setTimeout(() => {
+    const el = document.getElementById('q' + qi);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+
+function reiniciar() {
+  respostas = new Array(50).fill(null);
+  secaoAtiva = -1;
+  document.getElementById('resultado').classList.remove('show');
+  atualizarStats();
+  renderTabs();
+  renderQuestoes();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function revelarGabarito() {
+  if (!confirm('Isso vai revelar todas as respostas. Tem certeza?')) return;
+  questoes.forEach((q, qi) => {
+    if (respostas[qi] === null) respostas[qi] = gabarito[qi];
+  });
+  atualizarStats();
+  renderQuestoes();
+}
+
+// Init
+renderTabs();
+renderQuestoes();
+</script>
+</body>
+</html>
